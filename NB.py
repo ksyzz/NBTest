@@ -25,7 +25,13 @@ class NaiveBayse:
         self._count_y = np.bincount(self._y)
         self._possibilities = [(yy + 1) / (sum(self._count_y) + len(self._count_y)) for yy in self._count_y]
         self._features_count = [len(set(feature)) for feature in np.array(self._x).T]
-        y_labels = [self._y == value for value in range(len(self._count_y))]
-        # for dim, samples in enumerate(self._features_count):
-        #     self._condition_p = [[ [] for yy in range len(self._count_y)] for yy in range len(self._count_y)]
+        y = np.array(self._y)
+        x = np.array(self._x)
+        feats = [y == value for value in range(len(self._count_y))]
+        label_x = [x[ci].T for ci in feats]
+        for ci in feats:
+            print(ci)
+            print("  ")
+            print(x[ci])
+
         print()
