@@ -5,7 +5,7 @@ class NaiveBayse:
     if __name__ == '__main__':
         from NB import NaiveBayse
         NB = NaiveBayse()
-        NB.dealdata("C:\\balloon1.0.txt")
+        NB.predict("C:\\balloon1.0.txt", "C:\\balloon1.5.txt")
     def __init__(self):
         self._x = self._y = None # 数据集合
         self._dics_x = self._dics_y = None # 数据字典
@@ -29,9 +29,28 @@ class NaiveBayse:
         x = np.array(self._x)
         feats = [y == value for value in range(len(self._count_y))]
         label_x = [x[ci].T for ci in feats]
-        for ci in feats:
-            print(ci)
-            print("  ")
-            print(x[ci])
+        self._condition_p = [[np.bincount(label_x[yy][i]) for yy in range(len(self._count_y))] for i in range(len(self._features_count))]
+        condition_p = [None] * len(self._features_count)
+        for dim, count in enumerate(self._features_count):
+            condition_p[dim] = [[(self._condition_p[dim][k][i] + 1) / (self._count_y[k] + count * 1) for i in range(self._features_count[dim])]
+                                for k in range(len(self._count_y))]
+        def func(input_x):
+            rs = [1] * len(self._count_y)
+            for yy in range(len(self._count_y)):
+                for idx, value in enumerate(input_x):
+                    rs[yy] *= condition_p[idx][yy][value]
+            idx = rs.index(np.max(rs))
+            for k, v in self._dics_y.items():
+                if v == idx:
+                    return k
+        return func
 
-        print()
+    def predict(self, path, predictt_path):
+        func = self.dealdata(path)
+        dx, dy = DataUtil.getdata(predictt_path)
+        _x = [[self._dics_x[i][j] for i, j in enumerate(xx)] for xx in dx]
+        x = np.array(_x)
+
+        for i in range(len(x)):
+            rs = func(x[i])
+            print(rs)
